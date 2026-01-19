@@ -1,0 +1,95 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+
+<style>
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Products</h2>
+    {% if request.GET.q %}
+<p class="text-muted">
+    Showing results for "<strong>{{ request.GET.q }}</strong>"
+</p>
+{% endif %}
+
+<div class="mb-4">
+    <a href="{% url 'products' %}"
+   class="btn btn-sm me-2 {% if not selected_category %}btn-dark{% else %}btn-outline-dark{% endif %}">
+   All
+</a>
+
+    <a href="?category=electronics"
+   class="btn btn-sm me-2 {% if selected_category == 'electronics' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+   Electronics
+    </a>
+
+    <a href="?category=accessories"
+   class="btn btn-sm me-2 {% if selected_category == 'accessories' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+   Accessories
+</a>
+
+    <a href="?category=wearables"
+   class="btn btn-sm {% if selected_category == 'wearables' %}btn-dark{% else %}btn-outline-dark{% endif %}">
+   Wearables
+</a>
+
+</div>
+
+    <span class="badge bg-dark px-3 py-2">
+        Total: {{ products|length }}
+    </span>
+</div>
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="card product-card shadow-sm h-100">
+
+        {% if product.image %}
+        <img src="{{ product.image.url }}"
+             class="card-img-top product-img"
+             style="height:200px; object-fit:cover;"
+             alt="{{ product.name }}">
+        {% endif %}
+
+        <div class="card-body">
+            <h5 class="card-title fw-bold">{{ product.name }}</h5>
+
+            <div class="rating mb-2">
+                ★★★★☆ <span class="rating-value">(4.5)</span>
+            </div>
+
+            <h6 class="price">₹{{ product.price }}</h6>
+
+            {% if user.is_authenticated %}
+<form method="GET" action="{% url 'checkout' %}">
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <button type="submit" class="btn btn-success w-100 mt-2">
+        ⚡ Buy Now
+    </button>
+</form>
+{% else %}
+<a href="{% url 'login' %}?next={{ request.path }}"
+   class="btn btn-outline-secondary w-100 mt-2">
+   🔒 Login to Buy
+</a>
+{% endif %}
+
+
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+{% endblock %}
+
